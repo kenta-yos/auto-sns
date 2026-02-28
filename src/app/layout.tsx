@@ -39,10 +39,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
-        <link
-          rel="apple-touch-icon"
-          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='36' fill='%232563eb'/><text x='90' y='100' font-family='Arial' font-weight='bold' font-size='72' fill='white' text-anchor='middle' dominant-baseline='middle'>S</text><circle cx='134' cy='48' r='17' fill='%2322c55e'/></svg>"
-        />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
