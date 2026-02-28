@@ -107,7 +107,7 @@ export async function GET(req: NextRequest) {
       totalLikes,
       totalReposts,
       totalReplies,
-      totalPosts: latestByUri.size,
+      totalPosts: latestProfile?.postsCount ?? 0,
       followersCount: latestProfile?.followersCount ?? 0,
       followsCount: latestProfile?.followsCount ?? 0,
     },
