@@ -56,7 +56,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
         body: JSON.stringify({
           body,
           platforms,
-          scheduledAt: scheduleMode && scheduledAt ? scheduledAt : null,
+          scheduledAt: scheduleMode && scheduledAt ? scheduledAt + "+09:00" : null,
         }),
       });
 
