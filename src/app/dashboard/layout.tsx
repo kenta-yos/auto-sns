@@ -57,7 +57,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       {/* Header — frosted glass */}
       <header className="glass sticky top-0 z-20 shadow-[0_1px_0_rgba(0,0,0,0.06)]">
         <div className="max-w-2xl mx-auto px-4 h-12 flex items-center justify-between">

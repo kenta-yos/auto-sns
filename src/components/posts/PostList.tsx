@@ -135,7 +135,7 @@ export default function PostList() {
               </span>
             </div>
 
-            <p className="text-[15px] leading-relaxed whitespace-pre-wrap mb-3">{post.body}</p>
+            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words mb-3">{post.body}</p>
 
             {post.scheduledAt && post.status === "scheduled" && (
               <p className="text-xs text-yellow-600 mb-2">
