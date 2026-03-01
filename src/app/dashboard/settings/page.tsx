@@ -91,27 +91,27 @@ export default function SettingsPage() {
   if (loading)
     return (
       <div className="space-y-4 animate-fade-in">
-        <div className="skeleton h-8 w-24 rounded-xl" />
-        <div className="skeleton h-64 rounded-2xl" />
-        <div className="skeleton h-48 rounded-2xl" />
+        <div className="skeleton h-8 w-24" />
+        <div className="skeleton h-64" />
+        <div className="skeleton h-48" />
       </div>
     );
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <h1 className="text-xl font-bold">設定</h1>
+    <div className="space-y-5 animate-fade-in">
+      <h1 className="text-xl font-bold tracking-tight">設定</h1>
 
       {message && (
-        <div className="p-3 bg-blue-50 text-blue-700 rounded-xl text-sm">
+        <div className="p-3.5 bg-blue-50/80 text-blue-700 rounded-2xl text-sm">
           {message}
         </div>
       )}
       {testResult && (
         <div
-          className={`p-3 rounded-xl text-sm ${
+          className={`p-3.5 rounded-2xl text-sm ${
             testResult.startsWith("接続成功")
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
+              ? "bg-green-50/80 text-green-700"
+              : "bg-red-50/80 text-red-700"
           }`}
         >
           {testResult}
@@ -119,67 +119,59 @@ export default function SettingsPage() {
       )}
 
       {/* X (Twitter) */}
-      <div className="bg-white p-5 rounded-2xl shadow-sm border">
+      <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            {statuses.x?.configured && (
-              <span className="w-2.5 h-2.5 bg-green-500 rounded-full" />
-            )}
+          <div className="flex items-center gap-2.5">
+            <span className={`w-2.5 h-2.5 rounded-full ${statuses.x?.configured ? "bg-green-500" : "bg-gray-300"}`} />
             <h2 className="text-lg font-semibold">X (Twitter)</h2>
           </div>
           {statuses.x?.configured && (
-            <span className="text-xs text-green-600 font-medium">接続済み</span>
+            <span className="text-xs text-green-600 font-medium bg-green-50/80 px-2.5 py-1 rounded-full">接続済み</span>
           )}
         </div>
         <div className="space-y-3">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">API Key</label>
+            <label className="block text-sm text-gray-500 mb-1.5">API Key</label>
             <input
               type="password"
               value={xApiKey}
               onChange={(e) => setXApiKey(e.target.value)}
-              className="w-full px-3 border rounded-xl text-sm h-11"
+              className="w-full px-3.5 bg-gray-50/60 border-0 rounded-xl text-sm h-11 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               placeholder="API Key"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              API Secret
-            </label>
+            <label className="block text-sm text-gray-500 mb-1.5">API Secret</label>
             <input
               type="password"
               value={xApiSecret}
               onChange={(e) => setXApiSecret(e.target.value)}
-              className="w-full px-3 border rounded-xl text-sm h-11"
+              className="w-full px-3.5 bg-gray-50/60 border-0 rounded-xl text-sm h-11 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               placeholder="API Secret"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Access Token
-            </label>
+            <label className="block text-sm text-gray-500 mb-1.5">Access Token</label>
             <input
               type="password"
               value={xAccessToken}
               onChange={(e) => setXAccessToken(e.target.value)}
-              className="w-full px-3 border rounded-xl text-sm h-11"
+              className="w-full px-3.5 bg-gray-50/60 border-0 rounded-xl text-sm h-11 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               placeholder="Access Token"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Access Secret
-            </label>
+            <label className="block text-sm text-gray-500 mb-1.5">Access Secret</label>
             <input
               type="password"
               value={xAccessSecret}
               onChange={(e) => setXAccessSecret(e.target.value)}
-              className="w-full px-3 border rounded-xl text-sm h-11"
+              className="w-full px-3.5 bg-gray-50/60 border-0 rounded-xl text-sm h-11 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               placeholder="Access Secret"
             />
           </div>
         </div>
-        <div className="space-y-2 mt-4">
+        <div className="space-y-2 mt-5">
           <button
             onClick={() =>
               saveCredentials("x", {
@@ -189,7 +181,7 @@ export default function SettingsPage() {
                 accessSecret: xAccessSecret,
               })
             }
-            className="w-full h-12 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium tap-highlight"
+            className="btn-primary w-full h-12 text-sm tap-highlight"
           >
             保存
           </button>
@@ -203,14 +195,14 @@ export default function SettingsPage() {
                   accessSecret: xAccessSecret,
                 })
               }
-              className="flex-1 h-11 text-sm border rounded-xl hover:bg-gray-50 transition tap-highlight"
+              className="flex-1 h-11 text-sm bg-gray-100/80 rounded-[14px] hover:bg-gray-200/80 transition tap-highlight font-medium"
             >
               接続テスト
             </button>
             {statuses.x?.configured && (
               <button
                 onClick={() => deleteCredentials("x")}
-                className="flex-1 h-11 text-sm text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition tap-highlight"
+                className="flex-1 h-11 text-sm text-red-500 bg-red-50/80 rounded-[14px] hover:bg-red-100/80 transition tap-highlight font-medium"
               >
                 削除
               </button>
@@ -220,45 +212,43 @@ export default function SettingsPage() {
       </div>
 
       {/* Bluesky */}
-      <div className="bg-white p-5 rounded-2xl shadow-sm border">
+      <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            {statuses.bluesky?.configured && (
-              <span className="w-2.5 h-2.5 bg-green-500 rounded-full" />
-            )}
+          <div className="flex items-center gap-2.5">
+            <span className={`w-2.5 h-2.5 rounded-full ${statuses.bluesky?.configured ? "bg-green-500" : "bg-gray-300"}`} />
             <h2 className="text-lg font-semibold">Bluesky</h2>
           </div>
           {statuses.bluesky?.configured && (
-            <span className="text-xs text-green-600 font-medium">接続済み</span>
+            <span className="text-xs text-green-600 font-medium bg-green-50/80 px-2.5 py-1 rounded-full">接続済み</span>
           )}
         </div>
         <div className="space-y-3">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
+            <label className="block text-sm text-gray-500 mb-1.5">
               ハンドル (例: user.bsky.social)
             </label>
             <input
               type="text"
               value={bsIdentifier}
               onChange={(e) => setBsIdentifier(e.target.value)}
-              className="w-full px-3 border rounded-xl text-sm h-11"
+              className="w-full px-3.5 bg-gray-50/60 border-0 rounded-xl text-sm h-11 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               placeholder="your-handle.bsky.social"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
+            <label className="block text-sm text-gray-500 mb-1.5">
               アプリパスワード
             </label>
             <input
               type="password"
               value={bsPassword}
               onChange={(e) => setBsPassword(e.target.value)}
-              className="w-full px-3 border rounded-xl text-sm h-11"
+              className="w-full px-3.5 bg-gray-50/60 border-0 rounded-xl text-sm h-11 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               placeholder="App Password"
             />
           </div>
         </div>
-        <div className="space-y-2 mt-4">
+        <div className="space-y-2 mt-5">
           <button
             onClick={() =>
               saveCredentials("bluesky", {
@@ -266,7 +256,7 @@ export default function SettingsPage() {
                 password: bsPassword,
               })
             }
-            className="w-full h-12 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium tap-highlight"
+            className="btn-primary w-full h-12 text-sm tap-highlight"
           >
             保存
           </button>
@@ -278,14 +268,14 @@ export default function SettingsPage() {
                   password: bsPassword,
                 })
               }
-              className="flex-1 h-11 text-sm border rounded-xl hover:bg-gray-50 transition tap-highlight"
+              className="flex-1 h-11 text-sm bg-gray-100/80 rounded-[14px] hover:bg-gray-200/80 transition tap-highlight font-medium"
             >
               接続テスト
             </button>
             {statuses.bluesky?.configured && (
               <button
                 onClick={() => deleteCredentials("bluesky")}
-                className="flex-1 h-11 text-sm text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition tap-highlight"
+                className="flex-1 h-11 text-sm text-red-500 bg-red-50/80 rounded-[14px] hover:bg-red-100/80 transition tap-highlight font-medium"
               >
                 削除
               </button>

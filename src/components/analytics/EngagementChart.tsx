@@ -26,7 +26,7 @@ type Props = {
 export default function EngagementChart({ data }: Props) {
   if (data.length === 0) {
     return (
-      <div className="bg-white p-6 rounded-2xl shadow-sm border text-center text-gray-500">
+      <div className="card p-6 text-center text-gray-500">
         エンゲージメントデータがありません
       </div>
     );
@@ -43,20 +43,21 @@ export default function EngagementChart({ data }: Props) {
     }));
 
   return (
-    <div className="bg-white p-5 rounded-2xl shadow-sm border animate-fade-in-up">
+    <div className="card p-5 animate-fade-in-up">
       <h3 className="text-base font-semibold mb-3">
         投稿別エンゲージメント
       </h3>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={chartData} barCategoryGap="20%">
-          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
           <XAxis dataKey="name" tick={{ fontSize: 11 }} />
           <YAxis tick={{ fontSize: 11 }} width={30} />
           <Tooltip
             contentStyle={{
-              borderRadius: 12,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              borderRadius: 14,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
               border: "none",
+              fontSize: 13,
             }}
           />
           <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />

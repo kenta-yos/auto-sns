@@ -111,7 +111,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
   return (
     <div className="space-y-4 animate-fade-in">
       {/* テンプレート選択（折りたたみ式） */}
-      <div className="bg-white p-5 rounded-2xl shadow-sm border">
+      <div className="card p-5">
         <button
           onClick={() => setTemplateOpen(!templateOpen)}
           className="w-full flex items-center justify-between min-h-[44px] tap-highlight"
@@ -135,7 +135,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
             <select
               value={selectedDay}
               onChange={(e) => setSelectedDay(e.target.value)}
-              className="w-full px-3 py-2 border rounded-xl text-sm h-11"
+              className="w-full px-3 py-2 bg-gray-50/80 border-0 rounded-xl text-sm h-11 shadow-sm"
             >
               <option value="">日付を選択...</option>
               {allDays.map((day) => (
@@ -152,13 +152,13 @@ export default function PostComposer({ allDays, todayDate }: Props) {
                   <button
                     key={i}
                     onClick={() => selectTemplate(t.body, t.hashtags)}
-                    className="w-full text-left p-4 border rounded-xl hover:bg-blue-50 hover:border-blue-300 transition tap-highlight min-h-[44px]"
+                    className="w-full text-left p-4 bg-gray-50/60 rounded-2xl hover:bg-blue-50 transition tap-highlight min-h-[44px]"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-bold text-blue-600">
                         {t.option}
                       </span>
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                      <span className="text-xs bg-white/80 text-gray-600 px-2 py-0.5 rounded-full shadow-sm">
                         {t.theme}
                       </span>
                     </div>
@@ -173,7 +173,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
       </div>
 
       {/* 投稿エディタ */}
-      <div className="bg-white p-5 rounded-2xl shadow-sm border">
+      <div className="card p-5">
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
             {error}
@@ -188,8 +188,8 @@ export default function PostComposer({ allDays, todayDate }: Props) {
               onClick={() => togglePlatform(p.id)}
               className={`flex-1 h-11 rounded-xl text-sm font-medium transition tap-highlight ${
                 platforms.includes(p.id)
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-600"
+                  ? "btn-primary"
+                  : "bg-gray-100/80 text-gray-600"
               }`}
             >
               {p.label}
@@ -203,16 +203,16 @@ export default function PostComposer({ allDays, todayDate }: Props) {
           onChange={(e) => setBody(e.target.value)}
           placeholder="投稿内容を入力...またはテンプレートから選択"
           rows={6}
-          className="w-full px-4 py-3 border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 bg-gray-50/60 border-0 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/40 shadow-sm"
         />
-        <div className="flex justify-between text-sm mt-1 mb-4">
+        <div className="flex justify-between text-sm mt-1.5 mb-4">
           <span
             className={
               charRatio > 1
-                ? "text-red-500 font-medium"
+                ? "text-red-500 font-semibold"
                 : charRatio >= 0.9
                   ? "text-yellow-500 font-medium"
-                  : "text-gray-500"
+                  : "text-gray-400"
             }
           >
             {body.length} / {maxLength}
@@ -235,7 +235,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
               }`}
             >
               <span
-                className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
                   scheduleMode ? "translate-x-6" : "translate-x-1"
                 }`}
               />
@@ -246,7 +246,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
               type="datetime-local"
               value={scheduledAt}
               onChange={(e) => setScheduledAt(e.target.value)}
-              className="mt-3 w-full px-3 py-2 border rounded-xl text-sm h-11"
+              className="mt-3 w-full px-3 py-2 bg-gray-50/60 border-0 rounded-xl text-sm h-11 shadow-sm"
             />
           )}
         </div>
@@ -262,7 +262,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
                 platforms.length === 0 ||
                 body.length > maxLength
               }
-              className="w-full h-12 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition font-medium tap-highlight"
+              className="btn-primary w-full h-12 tap-highlight"
             >
               {loading ? "投稿中..." : "今すぐ投稿"}
             </button>
@@ -270,7 +270,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
           <button
             onClick={() => handleSave(false)}
             disabled={loading || !body.trim() || platforms.length === 0}
-            className="w-full h-12 border rounded-xl hover:bg-gray-50 disabled:opacity-50 transition font-medium tap-highlight"
+            className="w-full h-12 bg-gray-100/80 rounded-[14px] hover:bg-gray-200/80 disabled:opacity-50 transition font-medium tap-highlight"
           >
             {scheduleMode ? "スケジュール登録" : "下書き保存"}
           </button>

@@ -32,7 +32,7 @@ function formatDate(dateStr: string) {
 export default function FollowerGrowthChart({ data }: Props) {
   if (data.length === 0) {
     return (
-      <div className="bg-white p-6 rounded-2xl shadow-sm border text-center text-gray-500">
+      <div className="card p-6 text-center text-gray-500">
         フォロワーデータがありません
       </div>
     );
@@ -45,20 +45,21 @@ export default function FollowerGrowthChart({ data }: Props) {
   }));
 
   return (
-    <div className="bg-white p-5 rounded-2xl shadow-sm border animate-fade-in-up">
+    <div className="card p-5 animate-fade-in-up">
       <h3 className="text-base font-semibold mb-3">
         フォロワー推移
       </h3>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
           <XAxis dataKey="date" tick={{ fontSize: 11 }} />
           <YAxis tick={{ fontSize: 11 }} width={40} />
           <Tooltip
             contentStyle={{
-              borderRadius: 12,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              borderRadius: 14,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
               border: "none",
+              fontSize: 13,
             }}
           />
           <Line
