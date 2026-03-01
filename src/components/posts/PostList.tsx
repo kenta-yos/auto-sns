@@ -35,6 +35,27 @@ function formatJST(dateStr: string) {
   });
 }
 
+function PostListSkeleton() {
+  return (
+    <div className="space-y-3 animate-fade-in">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-white p-5 rounded-2xl shadow-sm border">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="skeleton h-6 w-16 rounded-full" />
+            <div className="skeleton h-6 w-14 rounded-full" />
+          </div>
+          <div className="skeleton h-4 w-full mb-2 rounded" />
+          <div className="skeleton h-4 w-3/4 mb-4 rounded" />
+          <div className="flex gap-2">
+            <div className="skeleton h-10 w-24 rounded-xl" />
+            <div className="skeleton h-10 w-16 rounded-xl" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function PostList() {
   const router = useRouter();
   const [postsList, setPostsList] = useState<Post[]>([]);
@@ -68,41 +89,53 @@ export default function PostList() {
     }
   }
 
-  if (loading) return <div className="text-gray-500">読み込み中...</div>;
+  if (loading) return <PostListSkeleton />;
+
   if (postsList.length === 0)
-    return <div className="text-gray-500">投稿はまだありません</div>;
+    return (
+      <div className="bg-white p-8 rounded-2xl shadow-sm border text-center animate-fade-in-up">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+          <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+        </div>
+        <p className="text-gray-700 font-medium mb-1">投稿はまだありません</p>
+        <p className="text-sm text-gray-500">投稿を作成すると、ここに表示されます</p>
+      </div>
+    );
 
   return (
-    <div className="space-y-4">
-      {postsList.map((post) => {
+    <div className="space-y-3">
+      {postsList.map((post, index) => {
         const s = STATUS_LABELS[post.status] || STATUS_LABELS.draft;
         return (
           <div
             key={post.id}
-            className="bg-white p-5 rounded-xl shadow-sm border"
+            className="bg-white p-5 rounded-2xl shadow-sm border animate-fade-in-up"
+            style={{ animationDelay: `${index * 50}ms` }}
           >
             <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span
-                  className={`text-xs px-2 py-1 rounded font-medium ${s.color}`}
+                  className={`text-xs px-3 py-1 rounded-full font-medium ${s.color}`}
                 >
                   {s.label}
                 </span>
                 {(post.platforms as string[]).map((p) => (
                   <span
                     key={p}
-                    className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                    className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
                   >
                     {p === "x" ? "X" : "Bluesky"}
                   </span>
                 ))}
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
                 {formatJST(post.createdAt)}
               </span>
             </div>
 
-            <p className="text-sm whitespace-pre-wrap mb-3">{post.body}</p>
+            <p className="text-[15px] leading-relaxed whitespace-pre-wrap mb-3">{post.body}</p>
 
             {post.scheduledAt && post.status === "scheduled" && (
               <p className="text-xs text-yellow-600 mb-2">
@@ -145,7 +178,7 @@ export default function PostList() {
               {(post.status === "draft" || post.status === "failed") && (
                 <button
                   onClick={() => handlePublish(post.id)}
-                  className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="h-10 px-4 bg-blue-600 text-white text-sm rounded-xl hover:bg-blue-700 transition font-medium tap-highlight"
                 >
                   今すぐ投稿
                 </button>
@@ -153,7 +186,7 @@ export default function PostList() {
               {(post.status === "draft" || post.status === "scheduled") && (
                 <button
                   onClick={() => handleDelete(post.id)}
-                  className="text-xs px-3 py-1 text-red-600 border border-red-200 rounded hover:bg-red-50"
+                  className="h-10 px-4 text-sm text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition tap-highlight"
                 >
                   削除
                 </button>

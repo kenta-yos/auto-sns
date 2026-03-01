@@ -6,7 +6,7 @@ import type { DayTemplates } from "@/lib/templates";
 
 const PLATFORMS = [
   { id: "x", label: "X (Twitter)", maxLength: 280 },
-  { id: "bluesky", label: "Bluesky", maxLength: 300 },
+  { id: "bluesky", label: "Bluesky", maxLength: 280 },
 ] as const;
 
 type Props = {
@@ -25,12 +25,14 @@ export default function PostComposer({ allDays, todayDate }: Props) {
 
   // テンプレート選択
   const [selectedDay, setSelectedDay] = useState<string>(todayDate || "");
+  const [templateOpen, setTemplateOpen] = useState(true);
 
   const currentDay = allDays.find((d) => d.date === selectedDay);
 
   function selectTemplate(templateBody: string, hashtags: string) {
     const fullText = hashtags ? `${templateBody}\n\n${hashtags}` : templateBody;
     setBody(fullText);
+    setTemplateOpen(false);
   }
 
   function togglePlatform(id: string) {
@@ -44,6 +46,8 @@ export default function PostComposer({ allDays, todayDate }: Props) {
       (id) => PLATFORMS.find((p) => p.id === id)?.maxLength ?? 300
     )
   );
+
+  const charRatio = body.length / maxLength;
 
   async function handleSave(publish: boolean) {
     setError("");
@@ -105,68 +109,87 @@ export default function PostComposer({ allDays, todayDate }: Props) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* テンプレート選択 */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border">
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">
-          テンプレートから選択
-        </h2>
-        <select
-          value={selectedDay}
-          onChange={(e) => setSelectedDay(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg text-sm mb-4"
+    <div className="space-y-4 animate-fade-in">
+      {/* テンプレート選択（折りたたみ式） */}
+      <div className="bg-white p-5 rounded-2xl shadow-sm border">
+        <button
+          onClick={() => setTemplateOpen(!templateOpen)}
+          className="w-full flex items-center justify-between min-h-[44px] tap-highlight"
         >
-          <option value="">日付を選択...</option>
-          {allDays.map((day) => (
-            <option key={day.date} value={day.date}>
-              {day.date} ({day.dayOfWeek})
-              {day.date === todayDate ? " ← 今日" : ""}
-            </option>
-          ))}
-        </select>
+          <h2 className="text-sm font-semibold text-gray-700">
+            テンプレートから選択
+          </h2>
+          <svg
+            className={`w-5 h-5 text-gray-400 transition-transform ${templateOpen ? "rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
-        {currentDay && (
-          <div className="space-y-3">
-            {currentDay.templates.map((t, i) => (
-              <button
-                key={i}
-                onClick={() => selectTemplate(t.body, t.hashtags)}
-                className="w-full text-left p-4 border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition"
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-bold text-blue-600">
-                    {t.option}
-                  </span>
-                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
-                    {t.theme}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 line-clamp-2">{t.body}</p>
-                <p className="text-xs text-gray-400 mt-1">{t.hashtags}</p>
-              </button>
-            ))}
+        {templateOpen && (
+          <div className="mt-3 space-y-3 animate-fade-in">
+            <select
+              value={selectedDay}
+              onChange={(e) => setSelectedDay(e.target.value)}
+              className="w-full px-3 py-2 border rounded-xl text-sm h-11"
+            >
+              <option value="">日付を選択...</option>
+              {allDays.map((day) => (
+                <option key={day.date} value={day.date}>
+                  {day.date} ({day.dayOfWeek})
+                  {day.date === todayDate ? " ← 今日" : ""}
+                </option>
+              ))}
+            </select>
+
+            {currentDay && (
+              <div className="space-y-2">
+                {currentDay.templates.map((t, i) => (
+                  <button
+                    key={i}
+                    onClick={() => selectTemplate(t.body, t.hashtags)}
+                    className="w-full text-left p-4 border rounded-xl hover:bg-blue-50 hover:border-blue-300 transition tap-highlight min-h-[44px]"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold text-blue-600">
+                        {t.option}
+                      </span>
+                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                        {t.theme}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700 line-clamp-2">{t.body}</p>
+                    <p className="text-xs text-gray-400 mt-1">{t.hashtags}</p>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* 投稿エディタ */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border">
+      <div className="bg-white p-5 rounded-2xl shadow-sm border">
         {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
             {error}
           </div>
         )}
 
         {/* プラットフォーム選択 */}
-        <div className="flex gap-3 mb-4">
+        <div className="flex gap-2 mb-4">
           {PLATFORMS.map((p) => (
             <button
               key={p.id}
               onClick={() => togglePlatform(p.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              className={`flex-1 h-11 rounded-xl text-sm font-medium transition tap-highlight ${
                 platforms.includes(p.id)
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  : "bg-gray-100 text-gray-600"
               }`}
             >
               {p.label}
@@ -179,40 +202,57 @@ export default function PostComposer({ allDays, todayDate }: Props) {
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="投稿内容を入力...またはテンプレートから選択"
-          rows={8}
-          className="w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows={6}
+          className="w-full px-4 py-3 border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <div className="flex justify-between text-sm text-gray-500 mt-1 mb-4">
-          <span>
+        <div className="flex justify-between text-sm mt-1 mb-4">
+          <span
+            className={
+              charRatio > 1
+                ? "text-red-500 font-medium"
+                : charRatio >= 0.9
+                  ? "text-yellow-500 font-medium"
+                  : "text-gray-500"
+            }
+          >
             {body.length} / {maxLength}
           </span>
           {body.length > maxLength && (
-            <span className="text-red-500">文字数オーバー</span>
+            <span className="text-red-500 font-medium">文字数オーバー</span>
           )}
         </div>
 
-        {/* スケジュール */}
-        <div className="mb-4">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={scheduleMode}
-              onChange={(e) => setScheduleMode(e.target.checked)}
-            />
-            スケジュール投稿
-          </label>
+        {/* スケジュール（トグルスイッチ） */}
+        <div className="mb-5">
+          <button
+            onClick={() => setScheduleMode(!scheduleMode)}
+            className="flex items-center justify-between w-full min-h-[44px] tap-highlight"
+          >
+            <span className="text-sm text-gray-700">スケジュール投稿</span>
+            <span
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                scheduleMode ? "bg-blue-600" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                  scheduleMode ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </span>
+          </button>
           {scheduleMode && (
             <input
               type="datetime-local"
               value={scheduledAt}
               onChange={(e) => setScheduledAt(e.target.value)}
-              className="mt-2 px-3 py-2 border rounded-lg text-sm"
+              className="mt-3 w-full px-3 py-2 border rounded-xl text-sm h-11"
             />
           )}
         </div>
 
-        {/* アクションボタン */}
-        <div className="flex gap-3">
+        {/* アクションボタン（縦並び） */}
+        <div className="space-y-2">
           {!scheduleMode && (
             <button
               onClick={() => handleSave(true)}
@@ -222,7 +262,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
                 platforms.length === 0 ||
                 body.length > maxLength
               }
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
+              className="w-full h-12 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition font-medium tap-highlight"
             >
               {loading ? "投稿中..." : "今すぐ投稿"}
             </button>
@@ -230,7 +270,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
           <button
             onClick={() => handleSave(false)}
             disabled={loading || !body.trim() || platforms.length === 0}
-            className="px-6 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 transition"
+            className="w-full h-12 border rounded-xl hover:bg-gray-50 disabled:opacity-50 transition font-medium tap-highlight"
           >
             {scheduleMode ? "スケジュール登録" : "下書き保存"}
           </button>

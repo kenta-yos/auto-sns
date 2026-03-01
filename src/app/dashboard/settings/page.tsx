@@ -88,20 +88,27 @@ export default function SettingsPage() {
     }
   }
 
-  if (loading) return <div className="p-6">読み込み中...</div>;
+  if (loading)
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <div className="skeleton h-8 w-24 rounded-xl" />
+        <div className="skeleton h-64 rounded-2xl" />
+        <div className="skeleton h-48 rounded-2xl" />
+      </div>
+    );
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold">設定</h1>
+    <div className="space-y-6 animate-fade-in">
+      <h1 className="text-xl font-bold">設定</h1>
 
       {message && (
-        <div className="p-3 bg-blue-50 text-blue-700 rounded-lg text-sm">
+        <div className="p-3 bg-blue-50 text-blue-700 rounded-xl text-sm">
           {message}
         </div>
       )}
       {testResult && (
         <div
-          className={`p-3 rounded-lg text-sm ${
+          className={`p-3 rounded-xl text-sm ${
             testResult.startsWith("接続成功")
               ? "bg-green-50 text-green-700"
               : "bg-red-50 text-red-700"
@@ -112,23 +119,26 @@ export default function SettingsPage() {
       )}
 
       {/* X (Twitter) */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border">
+      <div className="bg-white p-5 rounded-2xl shadow-sm border">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">X (Twitter)</h2>
+          <div className="flex items-center gap-2">
+            {statuses.x?.configured && (
+              <span className="w-2.5 h-2.5 bg-green-500 rounded-full" />
+            )}
+            <h2 className="text-lg font-semibold">X (Twitter)</h2>
+          </div>
           {statuses.x?.configured && (
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-              設定済み
-            </span>
+            <span className="text-xs text-green-600 font-medium">接続済み</span>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-3">
           <div>
             <label className="block text-sm text-gray-600 mb-1">API Key</label>
             <input
               type="password"
               value={xApiKey}
               onChange={(e) => setXApiKey(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm"
+              className="w-full px-3 border rounded-xl text-sm h-11"
               placeholder="API Key"
             />
           </div>
@@ -140,7 +150,7 @@ export default function SettingsPage() {
               type="password"
               value={xApiSecret}
               onChange={(e) => setXApiSecret(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm"
+              className="w-full px-3 border rounded-xl text-sm h-11"
               placeholder="API Secret"
             />
           </div>
@@ -152,7 +162,7 @@ export default function SettingsPage() {
               type="password"
               value={xAccessToken}
               onChange={(e) => setXAccessToken(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm"
+              className="w-full px-3 border rounded-xl text-sm h-11"
               placeholder="Access Token"
             />
           </div>
@@ -164,25 +174,12 @@ export default function SettingsPage() {
               type="password"
               value={xAccessSecret}
               onChange={(e) => setXAccessSecret(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm"
+              className="w-full px-3 border rounded-xl text-sm h-11"
               placeholder="Access Secret"
             />
           </div>
         </div>
-        <div className="flex gap-2 mt-4">
-          <button
-            onClick={() =>
-              testConnection("x", {
-                apiKey: xApiKey,
-                apiSecret: xApiSecret,
-                accessToken: xAccessToken,
-                accessSecret: xAccessSecret,
-              })
-            }
-            className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50"
-          >
-            接続テスト
-          </button>
+        <div className="space-y-2 mt-4">
           <button
             onClick={() =>
               saveCredentials("x", {
@@ -192,32 +189,50 @@ export default function SettingsPage() {
                 accessSecret: xAccessSecret,
               })
             }
-            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="w-full h-12 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium tap-highlight"
           >
             保存
           </button>
-          {statuses.x?.configured && (
+          <div className="flex gap-2">
             <button
-              onClick={() => deleteCredentials("x")}
-              className="px-4 py-2 text-sm text-red-600 border border-red-200 rounded-lg hover:bg-red-50"
+              onClick={() =>
+                testConnection("x", {
+                  apiKey: xApiKey,
+                  apiSecret: xApiSecret,
+                  accessToken: xAccessToken,
+                  accessSecret: xAccessSecret,
+                })
+              }
+              className="flex-1 h-11 text-sm border rounded-xl hover:bg-gray-50 transition tap-highlight"
             >
-              削除
+              接続テスト
             </button>
-          )}
+            {statuses.x?.configured && (
+              <button
+                onClick={() => deleteCredentials("x")}
+                className="flex-1 h-11 text-sm text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition tap-highlight"
+              >
+                削除
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Bluesky */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border">
+      <div className="bg-white p-5 rounded-2xl shadow-sm border">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Bluesky</h2>
+          <div className="flex items-center gap-2">
+            {statuses.bluesky?.configured && (
+              <span className="w-2.5 h-2.5 bg-green-500 rounded-full" />
+            )}
+            <h2 className="text-lg font-semibold">Bluesky</h2>
+          </div>
           {statuses.bluesky?.configured && (
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-              設定済み
-            </span>
+            <span className="text-xs text-green-600 font-medium">接続済み</span>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-3">
           <div>
             <label className="block text-sm text-gray-600 mb-1">
               ハンドル (例: user.bsky.social)
@@ -226,7 +241,7 @@ export default function SettingsPage() {
               type="text"
               value={bsIdentifier}
               onChange={(e) => setBsIdentifier(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm"
+              className="w-full px-3 border rounded-xl text-sm h-11"
               placeholder="your-handle.bsky.social"
             />
           </div>
@@ -238,23 +253,12 @@ export default function SettingsPage() {
               type="password"
               value={bsPassword}
               onChange={(e) => setBsPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm"
+              className="w-full px-3 border rounded-xl text-sm h-11"
               placeholder="App Password"
             />
           </div>
         </div>
-        <div className="flex gap-2 mt-4">
-          <button
-            onClick={() =>
-              testConnection("bluesky", {
-                identifier: bsIdentifier,
-                password: bsPassword,
-              })
-            }
-            className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50"
-          >
-            接続テスト
-          </button>
+        <div className="space-y-2 mt-4">
           <button
             onClick={() =>
               saveCredentials("bluesky", {
@@ -262,18 +266,31 @@ export default function SettingsPage() {
                 password: bsPassword,
               })
             }
-            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="w-full h-12 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium tap-highlight"
           >
             保存
           </button>
-          {statuses.bluesky?.configured && (
+          <div className="flex gap-2">
             <button
-              onClick={() => deleteCredentials("bluesky")}
-              className="px-4 py-2 text-sm text-red-600 border border-red-200 rounded-lg hover:bg-red-50"
+              onClick={() =>
+                testConnection("bluesky", {
+                  identifier: bsIdentifier,
+                  password: bsPassword,
+                })
+              }
+              className="flex-1 h-11 text-sm border rounded-xl hover:bg-gray-50 transition tap-highlight"
             >
-              削除
+              接続テスト
             </button>
-          )}
+            {statuses.bluesky?.configured && (
+              <button
+                onClick={() => deleteCredentials("bluesky")}
+                className="flex-1 h-11 text-sm text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition tap-highlight"
+              >
+                削除
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
