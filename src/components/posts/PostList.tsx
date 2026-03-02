@@ -35,6 +35,16 @@ function formatJST(dateStr: string) {
   });
 }
 
+function formatShortJST(dateStr: string) {
+  const d = new Date(dateStr);
+  const jst = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+  const month = jst.getMonth() + 1;
+  const day = jst.getDate();
+  const hours = String(jst.getHours()).padStart(2, "0");
+  const minutes = String(jst.getMinutes()).padStart(2, "0");
+  return `${month}/${day} ${hours}:${minutes}`;
+}
+
 function PostListSkeleton() {
   return (
     <div className="space-y-3 animate-fade-in">
@@ -137,11 +147,33 @@ export default function PostList() {
 
             <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words mb-3">{post.body}</p>
 
-            {post.scheduledAt && post.status === "scheduled" && (
-              <p className="text-xs text-yellow-600 mb-2">
-                予約: {formatJST(post.scheduledAt)}
-              </p>
-            )}
+            {(() => {
+              const publishedResult = post.results.find((r) => r.success && r.publishedAt);
+              const publishedAt = publishedResult?.publishedAt;
+
+              if (post.status === "scheduled" && post.scheduledAt) {
+                return (
+                  <p className="text-xs text-yellow-600 mb-2">
+                    予約: {formatShortJST(post.scheduledAt)}
+                  </p>
+                );
+              }
+              if (post.status === "published" && post.scheduledAt && publishedAt) {
+                return (
+                  <p className="text-xs text-green-600 mb-2">
+                    予約: {formatShortJST(post.scheduledAt)} → 投稿: {formatShortJST(publishedAt)}
+                  </p>
+                );
+              }
+              if (post.status === "published" && publishedAt) {
+                return (
+                  <p className="text-xs text-green-600 mb-2">
+                    投稿: {formatShortJST(publishedAt)}
+                  </p>
+                );
+              }
+              return null;
+            })()}
 
             {/* プラットフォーム結果 */}
             {post.results.length > 0 && (

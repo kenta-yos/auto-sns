@@ -54,9 +54,23 @@ function DashboardSkeleton() {
   );
 }
 
-function formatDate(dateStr: string): string {
+const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"] as const;
+
+function formatScheduleDate(dateStr: string): string {
   const d = new Date(dateStr);
-  return `${d.getMonth() + 1}月${d.getDate()}日`;
+  const jst = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+  const month = jst.getMonth() + 1;
+  const day = jst.getDate();
+  const weekday = WEEKDAYS[jst.getDay()];
+  const hours = String(jst.getHours()).padStart(2, "0");
+  const minutes = String(jst.getMinutes()).padStart(2, "0");
+  return `${month}/${day}(${weekday}) ${hours}:${minutes}`;
+}
+
+function formatTodayShort(): string {
+  const now = new Date();
+  const jst = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+  return `${jst.getMonth() + 1}/${jst.getDate()}`;
 }
 
 export default function DashboardPage() {
@@ -123,29 +137,76 @@ export default function DashboardPage() {
       </div>
 
       {/* Scheduled Posts Card */}
-      <div className="card p-4 flex items-center gap-3">
-        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
-          <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-          </svg>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-800">予約投稿</p>
-          {scheduledPosts.length > 0 ? (
-            <p className="text-xs text-gray-500">
-              {scheduledPosts.length}件 ・ 〜{latestScheduledDate ? formatDate(latestScheduledDate) : ""}まで
-            </p>
-          ) : (
-            <p className="text-xs text-gray-500">予約投稿はありません</p>
-          )}
-        </div>
-        <Link
-          href="/dashboard/compose"
-          className="text-sm text-blue-600 font-medium whitespace-nowrap tap-highlight"
-        >
-          投稿を作成 →
-        </Link>
-      </div>
+      {(() => {
+        if (scheduledPosts.length === 0) {
+          return (
+            <div className="rounded-2xl border-l-4 border-orange-400 bg-orange-50/80 p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-orange-700">予約投稿がありません</p>
+                  <p className="text-xs text-orange-600/70 mt-0.5">投稿を作成して予約しましょう</p>
+                </div>
+                <Link
+                  href="/dashboard/compose"
+                  className="btn-primary px-4 h-9 text-sm flex items-center justify-center tap-highlight"
+                >
+                  作成 →
+                </Link>
+              </div>
+            </div>
+          );
+        }
+
+        const now = Date.now();
+        const lastMs = latestScheduledDate ? new Date(latestScheduledDate).getTime() : now;
+        const diffMs = lastMs - now;
+        const THRESHOLD_48H = 172800000;
+        const isWarning = diffMs < THRESHOLD_48H;
+
+        if (isWarning) {
+          const hoursLeft = Math.max(0, Math.round(diffMs / 3600000));
+          return (
+            <div className="rounded-2xl border-l-4 border-orange-400 bg-orange-50/80 p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-orange-700">
+                    残り約{hoursLeft}時間 ・ {scheduledPosts.length}件
+                  </p>
+                  <p className="text-xs text-orange-600/70 mt-0.5">48時間を切っています</p>
+                </div>
+                <Link
+                  href="/dashboard/compose"
+                  className="btn-primary px-4 h-9 text-sm flex items-center justify-center tap-highlight"
+                >
+                  追加 →
+                </Link>
+              </div>
+            </div>
+          );
+        }
+
+        const daysAhead = Math.floor(diffMs / 86400000);
+        return (
+          <div className="rounded-2xl border-l-4 border-blue-400 bg-blue-50/80 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-bold text-blue-700">
+                  今日 {formatTodayShort()} → 最終 {latestScheduledDate ? formatScheduleDate(latestScheduledDate) : ""}
+                </p>
+                <p className="text-xs text-blue-600/70 mt-0.5">
+                  {daysAhead}日先まで確保 ・ {scheduledPosts.length}件
+                </p>
+              </div>
+              <Link
+                href="/dashboard/compose"
+                className="btn-primary px-4 h-9 text-sm flex items-center justify-center tap-highlight"
+              >
+                追加 →
+              </Link>
+            </div>
+          </div>
+        );
+      })()}
 
       {data ? (
         <>

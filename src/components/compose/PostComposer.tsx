@@ -9,6 +9,17 @@ const PLATFORMS = [
   { id: "bluesky", label: "Bluesky", maxLength: 280 },
 ] as const;
 
+function getDefault48h(): string {
+  const future = new Date(Date.now() + 48 * 60 * 60 * 1000);
+  const jst = new Date(future.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+  const y = jst.getFullYear();
+  const m = String(jst.getMonth() + 1).padStart(2, "0");
+  const d = String(jst.getDate()).padStart(2, "0");
+  const h = String(jst.getHours()).padStart(2, "0");
+  const min = String(jst.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${d}T${h}:${min}`;
+}
+
 type Props = {
   allDays: DayTemplates[];
   todayDate: string | null;
@@ -18,8 +29,8 @@ export default function PostComposer({ allDays, todayDate }: Props) {
   const router = useRouter();
   const [body, setBody] = useState("");
   const [platforms, setPlatforms] = useState<string[]>(["bluesky"]);
-  const [scheduleMode, setScheduleMode] = useState(false);
-  const [scheduledAt, setScheduledAt] = useState("");
+  const [scheduleMode, setScheduleMode] = useState(true);
+  const [scheduledAt, setScheduledAt] = useState(getDefault48h());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
