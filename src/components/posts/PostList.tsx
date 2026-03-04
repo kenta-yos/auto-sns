@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { weightedLength, MAX_WEIGHT } from "@/lib/text-utils";
 
 type PlatformResult = {
   platform: string;
@@ -191,10 +192,22 @@ export default function PostList() {
                   rows={4}
                   className="w-full px-3 py-2 bg-gray-50/60 border-0 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/40 text-[15px] leading-relaxed shadow-sm"
                 />
-                <div className="flex gap-2 mt-2">
+                <div className="flex items-center justify-between mt-2">
+                  <span
+                    className={`text-sm ${
+                      weightedLength(editBody) > MAX_WEIGHT
+                        ? "text-red-500 font-semibold"
+                        : weightedLength(editBody) >= MAX_WEIGHT * 0.9
+                          ? "text-yellow-500 font-medium"
+                          : "text-gray-400"
+                    }`}
+                  >
+                    {weightedLength(editBody)} / {MAX_WEIGHT}
+                  </span>
+                  <div className="flex gap-2">
                   <button
                     onClick={() => saveEdit(post.id)}
-                    disabled={editSaving || !editBody.trim()}
+                    disabled={editSaving || !editBody.trim() || weightedLength(editBody) > MAX_WEIGHT}
                     className="btn-primary h-9 px-4 text-sm tap-highlight"
                   >
                     {editSaving ? "保存中..." : "保存"}
@@ -205,6 +218,7 @@ export default function PostList() {
                   >
                     キャンセル
                   </button>
+                  </div>
                 </div>
               </div>
             ) : (
