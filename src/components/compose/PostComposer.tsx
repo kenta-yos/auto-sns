@@ -6,9 +6,33 @@ import type { DayTemplates } from "@/lib/templates";
 import { compressImage, type CompressedImage } from "@/lib/image-compress";
 
 const PLATFORMS = [
-  { id: "x", label: "X (Twitter)", maxLength: 280 },
-  { id: "bluesky", label: "Bluesky", maxLength: 280 },
+  { id: "x", label: "X (Twitter)", maxWeight: 280 },
+  { id: "bluesky", label: "Bluesky", maxWeight: 300 },
 ] as const;
+
+// X互換の重み付き文字数カウント（CJK等は2、Latin等は1）
+function weightedLength(text: string): number {
+  let weight = 0;
+  for (const char of text) {
+    const code = char.codePointAt(0)!;
+    // CJK, ひらがな, カタカナ, 全角記号等 → weight 2
+    if (
+      (code >= 0x1100 && code <= 0x11ff) ||  // Hangul Jamo
+      (code >= 0x2e80 && code <= 0x9fff) ||  // CJK
+      (code >= 0xac00 && code <= 0xd7af) ||  // Hangul Syllables
+      (code >= 0xf900 && code <= 0xfaff) ||  // CJK Compat
+      (code >= 0xfe30 && code <= 0xfe4f) ||  // CJK Compat Forms
+      (code >= 0xff01 && code <= 0xff60) ||  // Fullwidth Forms
+      (code >= 0xffe0 && code <= 0xffe6) ||  // Fullwidth Signs
+      (code >= 0x20000 && code <= 0x2fa1f)   // CJK Extension
+    ) {
+      weight += 2;
+    } else {
+      weight += 1;
+    }
+  }
+  return weight;
+}
 
 function getDefault48h(): string {
   const future = new Date(Date.now() + 48 * 60 * 60 * 1000);
@@ -95,13 +119,14 @@ export default function PostComposer({ allDays, todayDate }: Props) {
       : `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
   }
 
-  const maxLength = Math.min(
+  const maxWeight = Math.min(
     ...platforms.map(
-      (id) => PLATFORMS.find((p) => p.id === id)?.maxLength ?? 300
+      (id) => PLATFORMS.find((p) => p.id === id)?.maxWeight ?? 300
     )
   );
 
-  const charRatio = body.length / maxLength;
+  const currentWeight = weightedLength(body);
+  const charRatio = currentWeight / maxWeight;
 
   async function handleSave(publish: boolean) {
     setError("");
@@ -272,9 +297,9 @@ export default function PostComposer({ allDays, todayDate }: Props) {
                   : "text-gray-400"
             }
           >
-            {body.length} / {maxLength}
+            {currentWeight} / {maxWeight}
           </span>
-          {body.length > maxLength && (
+          {currentWeight > maxWeight && (
             <span className="text-red-500 font-medium">文字数オーバー</span>
           )}
         </div>
@@ -364,7 +389,7 @@ export default function PostComposer({ allDays, todayDate }: Props) {
                 loading ||
                 !body.trim() ||
                 platforms.length === 0 ||
-                body.length > maxLength
+                currentWeight > maxWeight
               }
               className="btn-primary w-full h-12 tap-highlight"
             >

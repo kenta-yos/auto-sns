@@ -76,6 +76,9 @@ export default function PostList() {
   const router = useRouter();
   const [postsList, setPostsList] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editBody, setEditBody] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     fetchPosts();
@@ -103,6 +106,27 @@ export default function PostList() {
     if (res.ok) {
       fetchPosts();
     }
+  }
+
+  function startEdit(post: Post) {
+    setEditingId(post.id);
+    setEditBody(post.body);
+  }
+
+  async function saveEdit(id: string) {
+    setEditSaving(true);
+    const res = await fetch(`/api/posts/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ body: editBody }),
+    });
+    if (res.ok) {
+      setPostsList((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, body: editBody } : p))
+      );
+      setEditingId(null);
+    }
+    setEditSaving(false);
   }
 
   if (loading) return <PostListSkeleton />;
@@ -159,7 +183,33 @@ export default function PostList() {
               </span>
             </div>
 
-            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words mb-3">{post.body}</p>
+            {editingId === post.id ? (
+              <div className="mb-3">
+                <textarea
+                  value={editBody}
+                  onChange={(e) => setEditBody(e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 bg-gray-50/60 border-0 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/40 text-[15px] leading-relaxed shadow-sm"
+                />
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => saveEdit(post.id)}
+                    disabled={editSaving || !editBody.trim()}
+                    className="btn-primary h-9 px-4 text-sm tap-highlight"
+                  >
+                    {editSaving ? "保存中..." : "保存"}
+                  </button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="h-9 px-4 text-sm text-gray-500 bg-gray-100/80 rounded-[14px] hover:bg-gray-200/80 transition tap-highlight"
+                  >
+                    キャンセル
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words mb-3">{post.body}</p>
+            )}
 
             {(() => {
               const publishedResult = post.results.find((r) => r.success && r.publishedAt);
@@ -220,24 +270,34 @@ export default function PostList() {
             )}
 
             {/* アクション */}
-            <div className="flex gap-2">
-              {(post.status === "draft" || post.status === "failed") && (
-                <button
-                  onClick={() => handlePublish(post.id)}
-                  className="btn-primary h-10 px-5 text-sm tap-highlight"
-                >
-                  今すぐ投稿
-                </button>
-              )}
-              {(post.status === "draft" || post.status === "scheduled") && (
-                <button
-                  onClick={() => handleDelete(post.id)}
-                  className="h-10 px-4 text-sm text-red-500 bg-red-50/80 rounded-[14px] hover:bg-red-100/80 transition tap-highlight"
-                >
-                  削除
-                </button>
-              )}
-            </div>
+            {editingId !== post.id && (
+              <div className="flex gap-2">
+                {(post.status === "draft" || post.status === "failed") && (
+                  <button
+                    onClick={() => handlePublish(post.id)}
+                    className="btn-primary h-10 px-5 text-sm tap-highlight"
+                  >
+                    今すぐ投稿
+                  </button>
+                )}
+                {(post.status === "draft" || post.status === "scheduled") && (
+                  <button
+                    onClick={() => startEdit(post)}
+                    className="h-10 px-4 text-sm text-blue-600 bg-blue-50/80 rounded-[14px] hover:bg-blue-100/80 transition tap-highlight"
+                  >
+                    編集
+                  </button>
+                )}
+                {(post.status === "draft" || post.status === "scheduled") && (
+                  <button
+                    onClick={() => handleDelete(post.id)}
+                    className="h-10 px-4 text-sm text-red-500 bg-red-50/80 rounded-[14px] hover:bg-red-100/80 transition tap-highlight"
+                  >
+                    削除
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         );
       })}
