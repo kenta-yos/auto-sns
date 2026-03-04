@@ -264,20 +264,22 @@ export default function PostComposer({ allDays, todayDate }: Props) {
           rows={6}
           className="w-full px-4 py-3 bg-gray-50/60 border-0 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/40 shadow-sm"
         />
-        <div className="flex justify-between text-sm mt-1.5 mb-4">
-          <span
-            className={
+        <div className="mt-1.5 mb-4">
+          <div
+            className={`text-sm text-right ${
               charRatio > 1
                 ? "text-red-500 font-semibold"
                 : charRatio >= 0.9
                   ? "text-yellow-500 font-medium"
                   : "text-gray-400"
-            }
+            }`}
           >
             {currentWeight} / {maxWeight}
-          </span>
+          </div>
           {currentWeight > maxWeight && (
-            <span className="text-red-500 font-medium">文字数オーバー</span>
+            <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm font-medium">
+              文字数オーバー（{currentWeight - maxWeight}超過）— 投稿前に短くしてください
+            </div>
           )}
         </div>
 
