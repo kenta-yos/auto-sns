@@ -170,9 +170,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-bold text-orange-700">
-                    残り約{hoursLeft}時間 ・ {scheduledPosts.length}件
+                    最終 {latestScheduledDate ? formatScheduleDate(latestScheduledDate) : ""} ・ {scheduledPosts.length}件
                   </p>
-                  <p className="text-xs text-orange-600/70 mt-0.5">48時間を切っています</p>
+                  <p className="text-xs text-orange-600/70 mt-0.5">残り約{hoursLeft}時間 — 48時間を切っています</p>
                 </div>
                 <Link
                   href="/dashboard/compose"
