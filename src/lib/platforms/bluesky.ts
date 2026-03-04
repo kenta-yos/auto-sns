@@ -1,4 +1,5 @@
-import { BskyAgent, RichText } from "@atproto/api";
+import { BskyAgent, RichText, type BlobRef } from "@atproto/api";
+import type { PostImage } from "@/lib/db/schema";
 
 export interface BlueskyCredentials {
   identifier: string; // handle or DID
@@ -16,16 +17,31 @@ async function createAgent(credentials: BlueskyCredentials): Promise<BskyAgent> 
 
 export async function postToBluesky(
   credentials: BlueskyCredentials,
-  text: string
+  text: string,
+  images?: PostImage[]
 ): Promise<{ uri: string; cid: string; url: string }> {
   const agent = await createAgent(credentials);
 
   const rt = new RichText({ text });
   await rt.detectFacets(agent);
 
+  // Upload images if provided
+  let embed: { $type: string; images: { alt: string; image: BlobRef }[] } | undefined;
+  if (images && images.length > 0) {
+    const uploaded = await Promise.all(
+      images.map(async (img) => {
+        const buf = Buffer.from(img.data, "base64");
+        const response = await agent.uploadBlob(buf, { encoding: img.mimeType });
+        return { alt: img.alt || "", image: response.data.blob };
+      })
+    );
+    embed = { $type: "app.bsky.embed.images", images: uploaded };
+  }
+
   const res = await agent.post({
     text: rt.text,
     facets: rt.facets,
+    embed,
     createdAt: new Date().toISOString(),
   });
 

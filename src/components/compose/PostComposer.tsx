@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { DayTemplates } from "@/lib/templates";
+import { compressImage, type CompressedImage } from "@/lib/image-compress";
 
 const PLATFORMS = [
   { id: "x", label: "X (Twitter)", maxLength: 280 },
@@ -34,6 +35,11 @@ export default function PostComposer({ allDays, todayDate }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // 画像
+  const [images, setImages] = useState<(CompressedImage & { previewUrl: string })[]>([]);
+  const [imageLoading, setImageLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // テンプレート選択
   const [selectedDay, setSelectedDay] = useState<string>(todayDate || "");
   const [templateOpen, setTemplateOpen] = useState(true);
@@ -50,6 +56,43 @@ export default function PostComposer({ allDays, todayDate }: Props) {
     setPlatforms((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
     );
+  }
+
+  async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    setImageLoading(true);
+    setError("");
+
+    try {
+      const remaining = 4 - images.length;
+      const toProcess = Array.from(files).slice(0, remaining);
+
+      const compressed = await Promise.all(
+        toProcess.map(async (file) => {
+          const result = await compressImage(file);
+          const previewUrl = `data:${result.mimeType};base64,${result.data}`;
+          return { ...result, previewUrl };
+        })
+      );
+
+      setImages((prev) => [...prev, ...compressed].slice(0, 4));
+    } catch {
+      setError("画像の処理に失敗しました");
+    } finally {
+      setImageLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  function removeImage(index: number) {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function formatSize(bytes: number) {
+    return bytes < 1024 * 1024
+      ? `${Math.round(bytes / 1024)}KB`
+      : `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
   }
 
   const maxLength = Math.min(
@@ -72,6 +115,9 @@ export default function PostComposer({ allDays, todayDate }: Props) {
           body,
           platforms,
           scheduledAt: scheduleMode && scheduledAt ? scheduledAt + "+09:00" : null,
+          images: images.length > 0
+            ? images.map((img) => ({ data: img.data, mimeType: img.mimeType, alt: "" }))
+            : undefined,
         }),
       });
 
@@ -230,6 +276,53 @@ export default function PostComposer({ allDays, todayDate }: Props) {
           </span>
           {body.length > maxLength && (
             <span className="text-red-500 font-medium">文字数オーバー</span>
+          )}
+        </div>
+
+        {/* 画像添付 */}
+        <div className="mb-5">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={images.length >= 4 || imageLoading}
+            className="flex items-center gap-2 h-11 px-4 bg-gray-50/60 rounded-xl text-sm text-gray-600 hover:bg-gray-100/80 transition tap-highlight disabled:opacity-50"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+            </svg>
+            {imageLoading ? "処理中..." : `画像を追加 (${images.length}/4)`}
+          </button>
+
+          {images.length > 0 && (
+            <div className={`mt-3 grid gap-2 ${images.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+              {images.map((img, i) => (
+                <div key={i} className="relative group">
+                  <img
+                    src={img.previewUrl}
+                    alt={`添付画像 ${i + 1}`}
+                    className="w-full h-32 object-cover rounded-xl"
+                  />
+                  <span className="absolute bottom-1 left-1 text-[10px] bg-black/50 text-white px-1.5 py-0.5 rounded">
+                    {formatSize(img.sizeBytes)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 w-7 h-7 bg-black/50 text-white rounded-full flex items-center justify-center text-sm hover:bg-black/70 transition"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 

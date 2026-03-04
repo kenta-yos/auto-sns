@@ -46,6 +46,13 @@ export const platformCredentials = pgTable("platform_credentials", {
     .notNull(),
 });
 
+// ── post images (stored temporarily for scheduled posts) ──
+export type PostImage = {
+  data: string; // base64
+  mimeType: string;
+  alt: string;
+};
+
 // ── posts ──
 export const posts = pgTable("posts", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -54,6 +61,7 @@ export const posts = pgTable("posts", {
     .notNull(),
   body: text("body").notNull(),
   platforms: jsonb("platforms").notNull().$type<string[]>(), // ["x", "bluesky"]
+  images: jsonb("images").$type<PostImage[]>(),
   status: postStatusEnum("status").default("draft").notNull(),
   scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })

@@ -3,6 +3,7 @@ import {
   posts,
   postPlatformResults,
   platformCredentials,
+  type PostImage,
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { decrypt } from "@/lib/encryption";
@@ -60,7 +61,8 @@ export async function publishPost(postId: string) {
       } else if (platform === "bluesky") {
         const bsResult = await postToBluesky(
           decrypted as BlueskyCredentials,
-          post.body
+          post.body,
+          (post.images as PostImage[] | null) ?? undefined
         );
         result = { id: bsResult.uri, uri: bsResult.uri, url: bsResult.url };
       } else {
@@ -92,11 +94,13 @@ export async function publishPost(postId: string) {
   }
 
   // 全プラットフォーム成功なら published、一つでも失敗なら failed
+  // 投稿完了後は画像データをDBから削除
   const allSuccess = results.every((r) => r.success);
   await db
     .update(posts)
     .set({
       status: allSuccess ? "published" : "failed",
+      images: null,
       updatedAt: new Date(),
     })
     .where(eq(posts.id, postId));
