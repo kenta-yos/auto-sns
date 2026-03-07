@@ -22,12 +22,18 @@ function getDefault48h(): string {
   return `${y}-${m}-${d}T${h}:${min}`;
 }
 
+function getTodayDateStr(): string {
+  const now = new Date();
+  const jst = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+  return `${jst.getMonth() + 1}/${jst.getDate()}`;
+}
+
 type Props = {
   allDays: DayTemplates[];
-  todayDate: string | null;
 };
 
-export default function PostComposer({ allDays, todayDate }: Props) {
+export default function PostComposer({ allDays }: Props) {
+  const todayDate = getTodayDateStr();
   const router = useRouter();
   const [body, setBody] = useState("");
   const [platforms, setPlatforms] = useState<string[]>(["bluesky"]);
