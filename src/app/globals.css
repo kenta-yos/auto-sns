@@ -92,11 +92,11 @@ html {
 
 /* Tap highlight feedback */
 .tap-highlight {
-  transition: transform 0.1s ease, opacity 0.1s ease;
+  touch-action: manipulation;
+  transition: opacity 0.1s ease;
 }
 .tap-highlight:active {
-  transform: scale(0.97);
-  opacity: 0.85;
+  opacity: 0.7;
 }
 
 /* Skeleton loading placeholder */
@@ -119,10 +119,11 @@ html {
   font-weight: 600;
   border-radius: 14px;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
-  transition: transform 0.1s ease, box-shadow 0.15s ease;
+  touch-action: manipulation;
+  transition: opacity 0.1s ease, box-shadow 0.15s ease;
 }
 .btn-primary:active {
-  transform: scale(0.97);
+  opacity: 0.8;
   box-shadow: 0 1px 4px rgba(59, 130, 246, 0.2);
 }
 .btn-primary:disabled {
