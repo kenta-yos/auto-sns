@@ -128,7 +128,15 @@ const raw: PostTemplate[] = [
   { date: "3/28", dayOfWeek: "金", option: "③", theme: "加害者臨床", body: "藤岡淳子『加害者臨床を学ぶ』。主体性の獲得、自己受容、関係性の治癒。加害者が「更生」するとはどういうことかを臨床の視点から学んだ。被害者支援と同時に加害者臨床がなければ構造は変わらない。読書会で議論したい本。", hashtags: "#読書 #読書会" },
 ];
 
-// 日付ごとにグループ化
+const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"] as const;
+
+function computeDayOfWeek(dateStr: string): string {
+  const [month, day] = dateStr.split("/").map(Number);
+  const d = new Date(2026, month - 1, day);
+  return WEEKDAYS[d.getDay()];
+}
+
+// 日付ごとにグループ化（曜日は日付から自動算出）
 export function getTemplatesByDate(): DayTemplates[] {
   const grouped = new Map<string, PostTemplate[]>();
   for (const t of raw) {
@@ -138,7 +146,7 @@ export function getTemplatesByDate(): DayTemplates[] {
   }
   return Array.from(grouped.entries()).map(([date, templates]) => ({
     date,
-    dayOfWeek: templates[0].dayOfWeek,
+    dayOfWeek: computeDayOfWeek(date),
     templates,
   }));
 }
