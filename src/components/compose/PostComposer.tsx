@@ -53,9 +53,8 @@ export default function PostComposer({ allDays }: Props) {
 
   const currentDay = allDays.find((d) => d.date === selectedDay);
 
-  function selectTemplate(templateBody: string, hashtags: string) {
-    const fullText = hashtags ? `${templateBody}\n\n${hashtags}` : templateBody;
-    setBody(fullText);
+  function selectTemplate(templateBody: string) {
+    setBody(templateBody);
     setTemplateOpen(false);
   }
 
@@ -216,19 +215,13 @@ export default function PostComposer({ allDays }: Props) {
                 {currentDay.templates.map((t, i) => (
                   <button
                     key={i}
-                    onClick={() => selectTemplate(t.body, t.hashtags)}
+                    onClick={() => selectTemplate(t.body)}
                     className="w-full text-left p-4 bg-gray-50/60 rounded-2xl hover:bg-blue-50 transition tap-highlight min-h-[44px]"
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-bold text-blue-600">
-                        {t.option}
-                      </span>
-                      <span className="text-xs bg-white/80 text-gray-600 px-2 py-0.5 rounded-full shadow-sm">
-                        {t.theme}
-                      </span>
-                    </div>
+                    <p className="text-xs font-bold text-blue-600 mb-1">
+                      {t.theme}
+                    </p>
                     <p className="text-sm text-gray-700 line-clamp-2">{t.body}</p>
-                    <p className="text-xs text-gray-400 mt-1">{t.hashtags}</p>
                   </button>
                 ))}
               </div>
