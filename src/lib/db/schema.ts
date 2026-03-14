@@ -20,7 +20,7 @@ export const postStatusEnum = pgEnum("post_status", [
 export const platformEnum = pgEnum("platform", ["x", "bluesky"]);
 
 // ── users ──
-export const users = pgTable("users", {
+export const users = pgTable("sns_users", {
   id: uuid("id").defaultRandom().primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   passwordHash: text("password_hash").notNull(),
