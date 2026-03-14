@@ -56,7 +56,11 @@ export async function publishPost(postId: string) {
       let result: { id?: string; uri?: string; url: string };
 
       if (platform === "x") {
-        const xResult = await postToX(decrypted as XCredentials, post.body);
+        const xResult = await postToX(
+          decrypted as XCredentials,
+          post.body,
+          (post.images as PostImage[] | null) ?? undefined
+        );
         result = { id: xResult.id, url: xResult.url };
       } else if (platform === "bluesky") {
         const bsResult = await postToBluesky(

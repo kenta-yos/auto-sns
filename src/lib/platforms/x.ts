@@ -1,4 +1,5 @@
 import { TwitterApi } from "twitter-api-v2";
+import type { PostImage } from "@/lib/db/schema";
 
 export interface XCredentials {
   apiKey: string;
@@ -9,7 +10,8 @@ export interface XCredentials {
 
 export async function postToX(
   credentials: XCredentials,
-  text: string
+  text: string,
+  images?: PostImage[]
 ): Promise<{ id: string; url: string }> {
   const client = new TwitterApi({
     appKey: credentials.apiKey,
@@ -18,7 +20,24 @@ export async function postToX(
     accessSecret: credentials.accessSecret,
   });
 
-  const { data } = await client.v2.tweet(text);
+  // Upload images if provided
+  let mediaIds: string[] | undefined;
+  if (images && images.length > 0) {
+    const v1Client = client.v1;
+    mediaIds = await Promise.all(
+      images.map(async (img) => {
+        const buf = Buffer.from(img.data, "base64");
+        return v1Client.uploadMedia(buf, { mimeType: img.mimeType });
+      })
+    );
+  }
+
+  const { data } = await client.v2.tweet({
+    text,
+    ...(mediaIds && mediaIds.length > 0
+      ? { media: { media_ids: mediaIds as [string] | [string, string] | [string, string, string] | [string, string, string, string] } }
+      : {}),
+  });
   return {
     id: data.id,
     url: `https://x.com/i/status/${data.id}`,
