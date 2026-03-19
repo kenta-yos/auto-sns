@@ -36,7 +36,7 @@ export default function PostComposer({ allDays }: Props) {
   const todayDate = getTodayDateStr();
   const router = useRouter();
   const [body, setBody] = useState("");
-  const [platforms, setPlatforms] = useState<string[]>(["bluesky"]);
+  const [platforms, setPlatforms] = useState<string[]>(["bluesky", "x"]);
   const [scheduleMode, setScheduleMode] = useState(true);
   const [scheduledAt, setScheduledAt] = useState(getDefault48h());
   const [loading, setLoading] = useState(false);
